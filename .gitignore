@@ -1,3 +1,5 @@
 Parsec
 *.zip
 *.swp
+*.o
+*.hi

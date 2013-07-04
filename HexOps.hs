@@ -9,7 +9,7 @@ hexToAscInt c1 c2 = (DC.digitToInt c1)*16 + DC.digitToInt c2
 hexLToInt12 :: [Char] -> [Int]
 hexLToInt12 [] = []
 hexLToInt12 (x1:x2:x3:xs) =
-    (x1 * 256 + x2 * 16 + x3):(hexLToInt12 xs)
+    (256 * DC.digitToInt x1 + 16 * DC.digitToInt x2 + DC.digitToInt x3):(hexLToInt12 xs)
 hexLToInt12 _ = error "not appropriate length hex string"
 
 fourBitToHex :: Int -> Char
@@ -19,13 +19,13 @@ fourBitToHex c | 0 <= c && c <= 9 = head $ show c
 
 intToHex :: Int -> (Char, Char)
 intToHex i = (high, low) where
-    high = fourBitToHex $ DB.shiftR 4 i 
-    low = fourBitToHex $ (DB..&.) 15 i
+    high = fourBitToHex $ DB.shiftR i 4
+    low = fourBitToHex $ (DB..&.) i 15
 
 int12ToHex :: Int -> (Char, Char, Char)
 int12ToHex i = (high, mid, low) where
-    high = fourBitToHex $ (DB..&.) 15 $ DB.shiftR 8 i
-    mid = fourBitToHex $ (DB..&.) 15 $ DB.shiftR 4 i
+    high = fourBitToHex $ (DB..&.) 15 $ DB.shiftR i 8
+    mid = fourBitToHex $ (DB..&.) 15 $ DB.shiftR i 4
     low = fourBitToHex $ (DB..&.) 15 i
 
 int12LToHexStr :: [Int] -> [Char]

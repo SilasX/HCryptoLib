@@ -1,4 +1,8 @@
 module Table64 where
+
+import qualified Data.Bits as DB
+import qualified To64
+
 base64ToInt :: Char -> Int
 base64ToInt 'A' = 0
 base64ToInt 'B' = 1
@@ -64,14 +68,33 @@ base64ToInt '8' = 60
 base64ToInt '9' = 61
 base64ToInt '+' = 62
 base64ToInt '/' = 63
+base64ToInt _ = error "invalid base 64 char"
 
 isBase64 :: Char -> Bool
-isBase64 a = or [(a >= 'A') && (a <= 'Z'),
-					 			 (a >= 'a') && (a <= 'z'),
-					 			 (a >= '0') && (a <= '9'),
-					 			 (a == '+'),
-								 (a == '/')]
+isBase64 a = or
+    [(a >= 'A') && (a <= 'Z'),
+     (a >= 'a') && (a <= 'z'),
+     (a >= '0') && (a <= '9'),
+     (a == '+'),
+     (a == '/')]
 
 readBase64ToInt :: String -> [Int]
 readBase64ToInt [] = []
 readBase64ToInt (x:xs) = (base64ToInt x) : readBase64ToInt xs
+
+base64LToInt12 :: String -> [Int]
+base64LToInt12 [] = []
+base64LToInt12 (x1:x2:xs) =
+    (64*(base64ToInt x1) + base64ToInt x2):(base64LToInt12 xs)
+base64LToInt12 _ = error "not appropriate length base 64 string"
+
+int12ToBase64 :: Int -> (Char, Char)
+int12ToBase64 i = (high, low) where
+    high = To64.intToBase64 $ (DB..&.) 63 $ DB.shiftR i 6
+    low = To64.intToBase64 $ (DB..&.) 63 i
+
+int12LToB64Str :: [Int] -> String
+int12LToB64Str [] = []
+int12LToB64Str (x:xs) =
+    let (high, low) = int12ToBase64 x
+    in high:low:(int12LToB64Str xs)
