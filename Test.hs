@@ -1,6 +1,7 @@
 module Test where
 
 import qualified Data.Char as DC
+import Test.HUnit (assertEqual)
 import Test.QuickCheck (forAll, (==>))
 import Test.QuickCheck.Test (quickCheck)
 import Test.QuickCheck.Gen (Gen, choose, elements, listOf, suchThat)
@@ -8,6 +9,11 @@ import Test.QuickCheck.Gen (Gen, choose, elements, listOf, suchThat)
 import qualified To64
 import qualified Table64 as Tab64
 import qualified HexOps as HexO
+import qualified Utility as U
+
+-- example strings
+testHexStr = "69b71d79f8218a39259a7a29aabb2dbafc31cb300108310518720928b30d38f411493515597619d76df8e7aefcf74fbf"
+testBase64Str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+/"
 
 -- generate a list per listGen whose length is a multiple of n
 lenMultN n listGen = forAll (suchThat listGen (\x -> ((length x) `mod` n) == 0))
@@ -26,3 +32,7 @@ prop_revFromBase64 =
 main = do
     quickCheck prop_revFromHex
     quickCheck prop_revFromBase64
+    assertEqual "Base 64 to hex should get expected result"
+        testHexStr $ U.base64ToHex testBase64Str
+    assertEqual "Hex to base 64 should get expected result"
+        testBase64Str $ U.hexToBase64 testHexStr
