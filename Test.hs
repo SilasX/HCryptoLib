@@ -5,6 +5,7 @@ import Test.HUnit (assertEqual)
 import Test.QuickCheck (forAll, (==>))
 import Test.QuickCheck.Test (quickCheck)
 import Test.QuickCheck.Gen (Gen, choose, elements, listOf, suchThat)
+import Test.QuickCheck.Property (Property, Testable)
 
 import qualified To64
 import qualified Table64 as Tab64
@@ -16,6 +17,8 @@ testHexStr = "69b71d79f8218a39259a7a29aabb2dbafc31cb300108310518720928b30d38f411
 testBase64Str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+/"
 
 -- generate a list per listGen whose length is a multiple of n
+lenMultN ::
+    (Show a, Testable prop) => Int -> Gen [a] -> ([a] -> prop) -> Property
 lenMultN n listGen = forAll (suchThat listGen (\x -> ((length x) `mod` n) == 0))
 
 hexListGen = listOf $ elements $ ['0'..'9'] ++ ['a'..'f']
@@ -28,6 +31,9 @@ prop_revFromHex =
 -- the property that base64 to int12 then back to base64 is the identify function
 prop_revFromBase64 =
     lenMultN 2 base64Gen $ \xs -> xs == (Tab64.int12LToB64Str . Tab64.base64LToInt12) xs
+
+prop_xorAsHexSelfReverse =
+    lenMultN 1 hexListGen $ \key xs -> xs == U.xorAsHex key (U.xorAsHex key xs)
 
 main = do
     quickCheck prop_revFromHex
