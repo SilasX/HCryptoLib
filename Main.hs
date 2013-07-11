@@ -3,7 +3,6 @@ module Main where
 import Numeric
 
 import qualified Frequency as F
-import qualified Table64 as Tab64
 import qualified Utility as U
 
 main = do

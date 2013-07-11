@@ -5,16 +5,16 @@ import qualified Data.Char as DC
 import qualified Data.Text as DT
 
 import qualified AsciiOps as A
+import qualified Base64Ops as B
 import qualified HexOps as H
-import qualified Table64 as Tab64
 
 theciph = "0b3637272a2b2e63622c"
 
 base64ToHex :: [Char] -> [Char]
-base64ToHex = H.int12LToHexStr . Tab64.base64LToInt12
+base64ToHex = H.int12LToHexStr . B.base64LToInt12
 
 hexToBase64 :: [Char] -> [Char]
-hexToBase64 = Tab64.int12LToB64Str . H.hexLToInt12
+hexToBase64 = B.int12LToB64Str . H.hexLToInt12
 
 asciiToHex :: [Char] -> [Char]
 asciiToHex = H.int8LToHexStr . (map A.asciiToInt8)

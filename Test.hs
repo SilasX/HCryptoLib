@@ -7,8 +7,7 @@ import Test.QuickCheck.Test (quickCheck)
 import Test.QuickCheck.Gen (Gen, choose, elements, listOf, suchThat)
 import Test.QuickCheck.Property (Property, Testable)
 
-import qualified To64
-import qualified Table64 as Tab64
+import qualified Base64Ops as B
 import qualified HexOps as HexO
 import qualified Utility as U
 
@@ -30,7 +29,7 @@ prop_revFromHex =
 
 -- the property that base64 to int12 then back to base64 is the identify function
 prop_revFromBase64 =
-    lenMultN 2 base64Gen $ \xs -> xs == (Tab64.int12LToB64Str . Tab64.base64LToInt12) xs
+    lenMultN 2 base64Gen $ \xs -> xs == (B.int12LToB64Str . B.base64LToInt12) xs
 
 prop_xorAsHexSelfReverse =
     lenMultN 1 hexListGen $ \key xs -> xs == U.xorAsHex key (U.xorAsHex key xs)
