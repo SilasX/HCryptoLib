@@ -8,7 +8,7 @@ import qualified AsciiOps as A
 import qualified Base64Ops as B
 import qualified HexOps as H
 
-theciph = "0b3637272a2b2e63622c"
+theciph = "0b3637272a2b2e63"
 
 base64ToHex :: [Char] -> [Char]
 base64ToHex = H.int12LToHexStr . B.base64LToInt12

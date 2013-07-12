@@ -63,6 +63,17 @@ first2LenN :: Int -> String -> (String, String)
 first2LenN n str = (take n str, take n $ drop n str)
 
 -- normalized distance on Ascii ciphertext
-normKeylenDist n str = (fromIntegral (keylenDist (first2LenN n str))) / (fromIntegral n)
+normKeylenDist n str =
+    (fromIntegral . keylenDist . first2LenN n) str / fromIntegral n
 
-normKeylenHexDist n str = (fromIntegral (keylenDist (first2LenN n (U.hexToAscii str)))) / (fromIntegral n)
+-- same as normKeylenDist but for hex input
+normKeylenHexDist n str =
+    (fromIntegral . keylenDist . (first2LenN n) . U.hexToAscii) str / fromIntegral n
+
+-- given list of keylengths n for ascii cipherText, returning hamming distance return normalized Hamming distance of first two n-length segments of cipherText
+keylenDists :: Fractional a => String -> [Int] -> [a]
+keylenDists cipherText = map (flip normKeylenDist cipherText)
+
+-- same, but for hex cipherexts
+keylenHexDists :: Fractional a => String -> [Int] -> [a]
+keylenHexDists cipherText = map (flip normKeylenHexDist cipherText)
