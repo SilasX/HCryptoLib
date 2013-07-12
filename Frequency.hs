@@ -2,16 +2,19 @@
 
 module Frequency where
 
+import qualified Data.Bits as DB
 import qualified Data.Char as DC
 import qualified Data.List as DL
 import qualified Data.Ord as DO
-import Foreign.C.Types (CUChar)
+
+import qualified AsciiOps as A
 import qualified Utility as U
 
 perCharRate :: (Char -> Bool) -> Int -> [Char] -> Int
 perCharRate clsr weight cphrtxt =
     DL.foldl' (\i c -> i + if clsr c then weight else 0) 0 cphrtxt
 
+-- check wehther a given string xs starts with a given string prs
 startWith :: [Char] -> [Char] -> Bool
 startWith [] _ = True
 startWith (pr:prs) [] = False
@@ -39,3 +42,27 @@ bestKeyHexMatch cipherText = DL.maximumBy (DO.comparing (snd . fst)) $ U.rateKey
 
 bestDecryption :: [((Char, Int), String)] -> ((Char, Int), String)
 bestDecryption = DL.maximumBy (DO.comparing (snd . fst))
+
+{- functions for finding the key length -}
+hamDistInt8 :: Int -> Int -> Int
+hamDistInt8 a b = DB.popCount $ DB.xor a b
+
+hamDistIntL :: [Int] -> [Int] -> Int
+hamDistIntL xs ys = sum $ zipWith hamDistInt8 xs ys
+
+hamDistAscStr :: String -> String -> Int
+hamDistAscStr a b = hamDistIntL (toInt8 a) (toInt8 b)
+    where toInt8 = map A.asciiToInt8
+
+-- given 2-tuple of strings return hamming distance
+keylenDist :: (String, String) -> Int
+keylenDist = uncurry hamDistAscStr
+
+-- get first two substrings of length N
+first2LenN :: Int -> String -> (String, String)
+first2LenN n str = (take n str, take n $ drop n str)
+
+-- normalized distance on Ascii ciphertext
+normKeylenDist n str = (fromIntegral (keylenDist (first2LenN n str))) / (fromIntegral n)
+
+normKeylenHexDist n str = (fromIntegral (keylenDist (first2LenN n (U.hexToAscii str)))) / (fromIntegral n)

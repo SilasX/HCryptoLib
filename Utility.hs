@@ -13,6 +13,9 @@ theciph = "0b3637272a2b2e63622c"
 base64ToHex :: [Char] -> [Char]
 base64ToHex = H.int12LToHexStr . B.base64LToInt12
 
+base64ToInt8 :: [Char] -> [Int]
+base64ToInt8 = int12LToInt8L . B.base64LToInt12
+
 hexToBase64 :: [Char] -> [Char]
 hexToBase64 = B.int12LToB64Str . H.hexLToInt12
 
@@ -57,29 +60,6 @@ xorAsAscii key asc = H.int8ToPrintAscii $ DB.xor key (DC.ord asc)
 xorAsciiKey :: String -> String -> [Int]
 xorAsciiKey key ascStr =
     zipWith DB.xor (map A.asciiToInt8 (cycle key)) $ map A.asciiToInt8 ascStr
-
-hamDistInt8 :: Int -> Int -> Int
-hamDistInt8 a b = DB.popCount $ DB.xor a b
-
-hamDistIntL :: [Int] -> [Int] -> Int
-hamDistIntL xs ys = sum $ zipWith hamDistInt8 xs ys
-
-hamDistAscStr :: String -> String -> Int
-hamDistAscStr a b = hamDistIntL (toInt8 a) (toInt8 b)
-    where toInt8 = map A.asciiToInt8
-
--- given 2-tuple of strings return hamming distance
-keylenDist :: (String, String) -> Int
-keylenDist = uncurry hamDistAscStr
-
--- get first two substrings of length N
-first2LenN :: Int -> String -> (String, String)
-first2LenN n str = (take n str, take n $ drop n str)
-
--- normalized distance on Ascii ciphertext
-normKeylenDist n str = (fromIntegral (keylenDist (first2LenN n str))) / (fromIntegral n)
-
-normKeylenHexDist n str = (fromIntegral (keylenDist (first2LenN n (hexToAscii str)))) / (fromIntegral n)
 
 xorInt8WithString :: Int -> String -> String
 xorInt8WithString key = map (xorAsAscii key)
