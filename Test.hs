@@ -31,12 +31,16 @@ prop_revFromHex =
 prop_revFromBase64 =
     lenMultN 2 base64Gen $ \xs -> xs == (B.int12LToB64Str . B.base64LToInt12) xs
 
+prop_revFromBase64b =
+    lenMultN 2 base64Gen $ \xs -> xs == (B.int24LToB64Str . B.base64LToInt24L) xs
+
 prop_xorAsHexSelfReverse =
     lenMultN 1 hexListGen $ \key xs -> xs == U.xorAsHex key (U.xorAsHex key xs)
 
 main = do
     quickCheck prop_revFromHex
     quickCheck prop_revFromBase64
+    quickCheck prop_revFromBase64b
     assertEqual "Base 64 to hex should get expected result"
         testHexStr $ U.base64ToHex testBase64Str
     assertEqual "Hex to base 64 should get expected result"

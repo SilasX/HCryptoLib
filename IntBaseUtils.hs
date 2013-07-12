@@ -4,14 +4,16 @@ module IntBaseUtils where
 
 import qualified Data.Bits as DB
 
+-- get least significant 8 bits (turned out to be common operation)
+least8 :: Int -> Int
+least8 = (DB..&.) 255
 -- turn two (left, right) 12-bit integers into three 8-bit ints
 -- high: most significant 8 bits of left
 -- low: least significant 8 bits of right
 -- mid: combine least 4 significant of left with most 4 significant of right
 int12ToInt8 :: (Int, Int) -> (Int, Int, Int)
 int12ToInt8 (left, right) =
-    let least8 x = 255 DB..&. x
-        high = DB.shiftR left 4
+    let high = DB.shiftR left 4
         mid = (+) (DB.shiftL (least8 left) 8) $ DB.shiftR right 8
         low = least8 right
     in (high, mid, low)
@@ -32,8 +34,7 @@ int8LToInt24L (x1:[]) = (DB.shiftL x1 16):[]
 
 int24ToInt8 :: Int -> (Int, Int, Int)
 int24ToInt8 n =
-    let least8 x = 255 DB..&. x
-        low = least8 n
+    let low = least8 n
         mid = least8 $ DB.shiftR n 8
         high = least8 $ DB.shiftR n 16
     in (high, mid, low)

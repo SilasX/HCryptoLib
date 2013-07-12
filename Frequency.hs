@@ -87,3 +87,6 @@ keylenDists cipherText = map (flip normKeylenDist cipherText)
 -- same, but for hex cipherexts
 keylenHexDists :: Fractional a => String -> [Int] -> [a]
 keylenHexDists cipherText = map (flip normKeylenHexDist cipherText)
+
+-- given ascii ciphertext and list of keys lengths, return most probable key
+probKeylen :: String -> [Int] -> Int

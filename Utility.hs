@@ -1,52 +1,38 @@
 module Utility where
 
 import qualified Data.Bits as DB
+import qualified Data.ByteString as DBS
 import qualified Data.Char as DC
 import qualified Data.Text as DT
+import Data.ByteString.Base64 (encode, decodeLenient)
+import Data.ByteString.UTF8 (fromString, toString)
+import GHC.Word (Word8)
 
 import qualified AsciiOps as A
 import qualified Base64Ops as B
 import qualified HexOps as H
+import qualified IntBaseUtils as IB
 
 base64ToHex :: [Char] -> [Char]
 base64ToHex = H.int12LToHexStr . B.base64LToInt12
 
 base64ToInt8 :: [Char] -> [Int]
-base64ToInt8 = int12LToInt8L . B.base64LToInt12
+base64ToInt8 = IB.int12LToInt8L . B.base64LToInt12
+
+base64ToAscii :: [Char] -> [Char]
+base64ToAscii = toString. decodeLenient . fromString
 
 hexToBase64 :: [Char] -> [Char]
 hexToBase64 = B.int12LToB64Str . H.hexLToInt12
-
--- turn two (left, right) 12-bit integers into three 8-bit ints
--- high: most significant 8 bits of left
--- low: least significant 8 bits of right
--- mid: combine least 4 significant of left with most 4 significant of right
-int12ToInt8 :: (Int, Int) -> (Int, Int, Int)
-int12ToInt8 (left, right) =
-    let least8 x = 255 DB..&. x
-        high = DB.shiftR left 4
-        mid = (+) (DB.shiftL (least8 left) 8) $ DB.shiftR right 8
-        low = least8 right
-    in (high, mid, low)
-
--- for converting a string, if there is a single 12-bit int at the
--- end, treat the 4 least significant as if they were the only bits
--- in the most significant 4 bits of an 8-bit int
-int12LToInt8L :: [Int] -> [Int]
-int12LToInt8L [] = []
-int12LToInt8L (x1:x2:xs) =
-    let (high, mid, low) = int12ToInt8 (x1, x2)
-    in high:mid:low:int12LToInt8L xs
-int12LToInt8L (x1:xs) =
-    let high = DB.shiftR x1 4
-        low = DB.shiftL (15 DB..&. x1) 4
-    in [high, low]
 
 asciiToHex :: [Char] -> [Char]
 asciiToHex = H.int8LToHexStr . (map A.asciiToInt8)
 
 hexToAscii :: [Char] -> [Char]
 hexToAscii = (map A.int8ToAscii) . H.hexLToInt8
+
+asciiToBase64 :: [Char] -> [Char]
+asciiToBase64 = toString . encode . fromString
 
 xorAsHex :: [Char] -> [Char] -> [Char]
 xorAsHex key xs = map H.fourBitToHex $ zipWith DB.xor (map DC.digitToInt (cycle key)) $ map DC.digitToInt xs
