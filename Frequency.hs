@@ -90,3 +90,5 @@ keylenHexDists cipherText = map (flip normKeylenHexDist cipherText)
 
 -- given ascii ciphertext and list of keys lengths, return most probable key
 probKeylen :: String -> [Int] -> Int
+probKeylen cipherText keys =
+    DL.minimumBy (DO.comparing (\n -> normKeylenDist n (take 500 cipherText)) ) keys
