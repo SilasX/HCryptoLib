@@ -62,6 +62,16 @@ keylenDist = uncurry hamDistAscStr
 first2LenN :: Int -> String -> (String, String)
 first2LenN n str = (take n str, take n $ drop n str)
 
+-- return all 2-tuples neighboring n-length strings
+--allNLenPairs :: Int -> String -> [(String, String)]
+allNLenPairs n str =
+    if length str < 2 * n
+        then []
+        else first2LenN n str:allNLenPairs n (drop n str)
+
+-- implementation of average
+average xs = (fromIntegral (sum xs)) / fromIntegral (length xs)
+
 -- normalized distance on Ascii ciphertext
 normKeylenDist n str =
     (fromIntegral . keylenDist . first2LenN n) str / fromIntegral n
