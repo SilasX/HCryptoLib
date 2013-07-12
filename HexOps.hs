@@ -57,4 +57,4 @@ int12LToHexStr :: [Int] -> [Char]
 int12LToHexStr [] = []
 int12LToHexStr (x:xs) =
     let (high, mid, low) = int12ToHex x
-    in high:mid:low:(int12LToHexStr xs)
+    in high:mid:low:int12LToHexStr xs

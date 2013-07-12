@@ -16,6 +16,31 @@ base64ToHex = H.int12LToHexStr . B.base64LToInt12
 hexToBase64 :: [Char] -> [Char]
 hexToBase64 = B.int12LToB64Str . H.hexLToInt12
 
+-- turn two (left, right) 12-bit integers into three 8-bit ints
+-- high: most significant 8 bits of left
+-- low: least significant 8 bits of right
+-- mid: combine least 4 significant of left with most 4 significant of right
+int12ToInt8 :: (Int, Int) -> (Int, Int, Int)
+int12ToInt8 (left, right) =
+    let least8 x = 255 DB..&. x
+        high = DB.shiftR left 4
+        mid = (+) (DB.shiftL (least8 left) 8) $ DB.shiftR right 8
+        low = least8 right
+    in (high, mid, low)
+
+-- for converting a string, if there is a single 12-bit int at the
+-- end, treat the 4 least significant as if they were the only bits
+-- in the most significant 4 bits of an 8-bit int
+int12LToInt8L :: [Int] -> [Int]
+int12LToInt8L [] = []
+int12LToInt8L (x1:x2:xs) =
+    let (high, mid, low) = int12ToInt8 (x1, x2)
+    in high:mid:low:int12LToInt8L xs
+int12LToInt8L (x1:xs) =
+    let high = DB.shiftR x1 4
+        low = DB.shiftL (15 DB..&. x1) 4
+    in [high, low]
+
 asciiToHex :: [Char] -> [Char]
 asciiToHex = H.int8LToHexStr . (map A.asciiToInt8)
 
