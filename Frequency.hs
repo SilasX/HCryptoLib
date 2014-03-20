@@ -40,6 +40,10 @@ freqCheck1 = perCharRate DC.isPrint 1
 bestKeyHexMatch :: String -> ((Char, Int), String)
 bestKeyHexMatch cipherText = DL.maximumBy (DO.comparing (snd . fst)) $ U.rateKeysBy freqCheck1 [0..255] cipherText
 
+-- For just getting the best single-char hex description
+bestHexDecryption :: String -> String
+bestHexDecryption = snd . bestKeyHexMatch
+
 bestDecryption :: [((Char, Int), String)] -> ((Char, Int), String)
 bestDecryption = DL.maximumBy (DO.comparing (snd . fst))
 
