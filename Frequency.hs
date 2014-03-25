@@ -8,6 +8,7 @@ import qualified Data.List as DL
 import qualified Data.Ord as DO
 
 import qualified AsciiOps as A
+import qualified HexOps as H
 import qualified Utility as U
 
 perCharRate :: (Char -> Bool) -> Int -> [Char] -> Int
@@ -43,6 +44,11 @@ bestKeyHexMatch cipherText = DL.maximumBy (DO.comparing (snd . fst)) $ U.rateKey
 -- For just getting the best single-char hex description
 bestHexDecryption :: String -> String
 bestHexDecryption = snd . bestKeyHexMatch
+
+-- And using the new record syntax
+breakSingleKeyHex :: String -> H.Hex1CharDeciph
+breakSingleKeyHex cipherText =
+    DL.maximumBy (DO.comparing H.rating) $ U.deciphHexWithKeys freqCheck1 [0..255] cipherText
 
 bestDecryption :: [((Char, Int), String)] -> ((Char, Int), String)
 bestDecryption = DL.maximumBy (DO.comparing (snd . fst))

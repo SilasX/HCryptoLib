@@ -45,9 +45,14 @@ xorAsciiKey :: String -> String -> [Int]
 xorAsciiKey key ascStr =
     zipWith DB.xor (map A.asciiToInt8 (cycle key)) $ map A.asciiToInt8 ascStr
 
+-- same as above but return output as an ascii string
+xorAsciiKeyStr :: String -> String -> String
+xorAsciiKeyStr key ascStr = map A.int8ToAscii $ xorAsciiKey key ascStr
+
 xorInt8WithString :: Int -> String -> String
 xorInt8WithString key = map (xorAsAscii key)
 
+-- given hex ciphertext and integer key, return the decrypted ascii string
 xorInt8HexStr :: String -> Int -> String
 xorInt8HexStr [] key = []
 xorInt8HexStr (x1:x2:xs) key =
@@ -62,6 +67,23 @@ rateKeysBy :: (String -> Int) -> [Int] -> String -> [((Char, Int), String)]
 rateKeysBy rateFctn keys cipherText =
     let appendKeyRating k xs = ((DC.chr k, rating), xs) where rating = rateFctn xs
     in zipWith appendKeyRating keys (tryKeysOnHexStr keys cipherText)
+
+-- same as above but using Hex1CharDeciph syntax
+deciphHexWithKey :: (String -> Int) -> Int -> String -> H.Hex1CharDeciph
+deciphHexWithKey rateFctn key cipherText =
+    let pt = xorInt8HexStr cipherText key
+    in H.Hex1CharDeciph {
+          H.cipherText=cipherText,
+          H.keyInt=key,
+          H.keyChar=H.int8ToPrintAscii key,
+          H.plainText=pt,
+          H.rating=rateFctn pt
+}
+
+deciphHexWithKeys :: (String -> Int) -> [Int] -> String -> [H.Hex1CharDeciph]
+deciphHexWithKeys rateFctn keys cipherText =
+    let oneDeciph = \x -> deciphHexWithKey rateFctn x cipherText
+    in map oneDeciph keys
 
 addkeyInfo ::
     [Int] -> String -> ([Int] -> String -> [String]) -> [(Int, String)]

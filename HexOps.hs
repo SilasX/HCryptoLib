@@ -58,3 +58,12 @@ int12LToHexStr [] = []
 int12LToHexStr (x:xs) =
     let (high, mid, low) = int12ToHex x
     in high:mid:low:int12LToHexStr xs
+
+-- data type for representing hex ciphertext decrypted with a given key
+data Hex1CharDeciph = Hex1CharDeciph {
+    keyChar :: Char,
+    keyInt :: Int,
+    rating :: Int,
+    cipherText :: [Char],
+    plainText :: [Char]
+} deriving (Show)
