@@ -45,6 +45,10 @@ bestKeyHexMatch cipherText = DL.maximumBy (DO.comparing (snd . fst)) $ U.rateKey
 bestHexDecryption :: String -> String
 bestHexDecryption = snd . bestKeyHexMatch
 
+-- For choosing between multiple decryption outputs
+bestOfHexDecrypts :: [H.Hex1CharDeciph] -> H.Hex1CharDeciph
+bestOfHexDecrypts = DL.maximumBy (DO.comparing H.rating)
+
 -- And using the new record syntax
 breakSingleKeyHex :: String -> H.Hex1CharDeciph
 breakSingleKeyHex cipherText =
