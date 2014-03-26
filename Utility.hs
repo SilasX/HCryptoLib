@@ -98,3 +98,12 @@ addkeyInfo keys cipherText decryptFctn =
 
 readLines xs = filter (\xs -> xs /= "") $ map DT.unpack $ DT.split (=='\n') $ DT.pack xs
 
+readDropBreaks = filter ((/=) '\n')
+
+-- for blockifying a list: turn string into a list of substrings of length n, dropping the last incomplete block
+blockify :: Int -> [a] -> [[a]]
+blockify n xs =
+    let x = take n xs in
+        if length x /= n
+        then []
+        else x:(blockify n (drop n xs))
