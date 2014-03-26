@@ -45,6 +45,11 @@ xorAsciiKey :: String -> String -> [Int]
 xorAsciiKey key ascStr =
     zipWith DB.xor (map A.asciiToInt8 (cycle key)) $ map A.asciiToInt8 ascStr
 
+-- For xor-enciphering ascii plaintext with ascii string, output as hex
+--xorAsciiToHex :: [Char] -> [Char] -> [Char]
+xorAsciiToHex key plain =
+    H.int8LToHexStr $ xorAsciiKey key plain
+
 -- same as above but return output as an ascii string
 xorAsciiKeyStr :: String -> String -> String
 xorAsciiKeyStr key ascStr = map A.int8ToAscii $ xorAsciiKey key ascStr
